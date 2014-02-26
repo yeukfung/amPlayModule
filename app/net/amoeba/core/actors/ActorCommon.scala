@@ -131,72 +131,72 @@ object CRUDReqRespActor {
     }
 }
 
-abstract class CRUDReqRespActor[T <: DBModel[T]](dbService: ReactiveMongoDBService[T]) extends BaseReqRespActor with withMongoCRUDReqResp[T] {
-
-    import CRUDReqRespActor.errorCodes._
-    def CRUDReqRespReceive: Receive = {
-
-        /**
-         *  Create
-         */
-        case req @ Create(t, reqId) =>
-            val requestor = sender
-            dbService.insert(t) onComplete {
-                case Success(id) =>
-                    requestor ! CreateOk(id, t.copyWithId(id), reqId)
-                case Failure(t: Throwable) =>
-                    requestor ! Failed(req, CREATE_FAILED, t.getMessage(), Some(t), reqId)
-            }
-
-        /**
-         *  Update
-         */
-        case req @ Update(t, reqId) =>
-            val requestor = sender
-            dbService.update(t) onComplete {
-                case Success(flag) =>
-                    requestor ! UpdateOk(t, reqId)
-                case Failure(t: Throwable) =>
-                    requestor ! Failed(req, UPDATE_FAILED, t.getMessage(), Some(t), reqId)
-            }
-
-        /**
-         *  Get
-         */
-        case req @ Get(id, reqId) =>
-            val requestor = sender
-            dbService.get(id) onComplete {
-                case Success(obj) =>
-                    requestor ! GetOk(obj, reqId)
-                case Failure(t: Throwable) =>
-                    requestor ! Failed(req, GET_FAILED, t.getMessage(), Some(t), reqId)
-            }
-
-        /**
-         *  Query
-         */
-        case req @ RawQuery(criteria, offset, limit, reqId) =>
-            val requestor = sender
-            dbService.find(criteria, offset, limit) onComplete {
-                case Success(obj) =>
-                    requestor ! RawQueryOk(obj, reqId)
-                case Failure(t: Throwable) =>
-                    requestor ! Failed(req, QUERY_FAILED, t.getMessage(), Some(t), reqId)
-            }
-
-        /**
-         *  Delete
-         */
-        case req @ Delete(id, reqId) =>
-            val requestor = sender
-            dbService.delete(id) onComplete {
-                case Success(flag) =>
-                    requestor ! DeleteOk(flag, reqId)
-                case Failure(t: Throwable) =>
-                    requestor ! Failed(req, DELETE_FAILED, t.getMessage(), Some(t), reqId)
-            }
-
-    }
-
-    override def receive = CRUDReqRespReceive orElse BaseReqRespReceive
-}
+//abstract class CRUDReqRespActor[T <: DBModel[T]](dbService: ReactiveMongoDBService[T]) extends BaseReqRespActor with withMongoCRUDReqResp[T] {
+//
+//    import CRUDReqRespActor.errorCodes._
+//    def CRUDReqRespReceive: Receive = {
+//
+//        /**
+//         *  Create
+//         */
+//        case req @ Create(t, reqId) =>
+//            val requestor = sender
+//            dbService.insert(t) onComplete {
+//                case Success(id) =>
+//                    requestor ! CreateOk(id, t.copyWithId(id), reqId)
+//                case Failure(t: Throwable) =>
+//                    requestor ! Failed(req, CREATE_FAILED, t.getMessage(), Some(t), reqId)
+//            }
+//
+//        /**
+//         *  Update
+//         */
+//        case req @ Update(t, reqId) =>
+//            val requestor = sender
+//            dbService.update(t) onComplete {
+//                case Success(flag) =>
+//                    requestor ! UpdateOk(t, reqId)
+//                case Failure(t: Throwable) =>
+//                    requestor ! Failed(req, UPDATE_FAILED, t.getMessage(), Some(t), reqId)
+//            }
+//
+//        /**
+//         *  Get
+//         */
+//        case req @ Get(id, reqId) =>
+//            val requestor = sender
+//            dbService.get(id) onComplete {
+//                case Success(obj) =>
+//                    requestor ! GetOk(obj, reqId)
+//                case Failure(t: Throwable) =>
+//                    requestor ! Failed(req, GET_FAILED, t.getMessage(), Some(t), reqId)
+//            }
+//
+//        /**
+//         *  Query
+//         */
+//        case req @ RawQuery(criteria, offset, limit, reqId) =>
+//            val requestor = sender
+//            dbService.find(criteria, offset, limit) onComplete {
+//                case Success(obj) =>
+//                    requestor ! RawQueryOk(obj, reqId)
+//                case Failure(t: Throwable) =>
+//                    requestor ! Failed(req, QUERY_FAILED, t.getMessage(), Some(t), reqId)
+//            }
+//
+//        /**
+//         *  Delete
+//         */
+//        case req @ Delete(id, reqId) =>
+//            val requestor = sender
+//            dbService.delete(id) onComplete {
+//                case Success(flag) =>
+//                    requestor ! DeleteOk(flag, reqId)
+//                case Failure(t: Throwable) =>
+//                    requestor ! Failed(req, DELETE_FAILED, t.getMessage(), Some(t), reqId)
+//            }
+//
+//    }
+//
+//    override def receive = CRUDReqRespReceive orElse BaseReqRespReceive
+//}

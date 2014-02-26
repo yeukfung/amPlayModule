@@ -5,8 +5,8 @@ import play.api.libs.json.JsObject
 import java.util.Date
 
 trait WithCreatedDateTime {
-    def created: Date
-    def modified: Date
+    def created: Option[Date]
+    def modified: Option[Date]
 }
 
 trait DBModel[T] {
@@ -18,19 +18,21 @@ trait ReactiveMongoDBService[T <: DBModel[T]] extends CoreReactiveDBService[T, S
 
 trait CoreReactiveDBService[T <: DBModel[T], Id, Query, Update] {
 
-    def insert(t: T)(implicit ctx: ExecutionContext): Future[Id]
+    implicit def defaultQueryHook(q: JsObject): JsObject = q
 
-    def get(id: Id)(implicit ctx: ExecutionContext): Future[Option[T]]
+    def insert(t: T, queryHook: (JsObject) => JsObject = defaultQueryHook)(implicit ctx: ExecutionContext): Future[Id]
 
-    def delete(id: Id)(implicit ctx: ExecutionContext): Future[Boolean]
+    def get(id: Id, queryHook: (JsObject) => JsObject = defaultQueryHook)(implicit ctx: ExecutionContext): Future[Option[T]]
 
-    def update(t: T)(implicit ctx: ExecutionContext): Future[Boolean]
+    def delete(id: Id, queryHook: (JsObject) => JsObject = defaultQueryHook)(implicit ctx: ExecutionContext): Future[Boolean]
 
-    def updatePartial(id: Id, upd: Update)(implicit ctx: ExecutionContext): Future[Boolean]
+    def update(t: T, queryHook: (JsObject) => JsObject = defaultQueryHook)(implicit ctx: ExecutionContext): Future[Boolean]
 
-    def find(sel: Query, limit: Long = 0, skip: Long = 0)(implicit ctx: ExecutionContext): Future[List[T]]
+    def updatePartial(id: Id, upd: Update, queryHook: (JsObject) => JsObject = defaultQueryHook)(implicit ctx: ExecutionContext): Future[Boolean]
 
-    def findOne(sel: Query)(implicit ctx: ExecutionContext): Future[Option[T]] = find(sel, 1) map (_.headOption)
+    def find(sel: Query, limit: Long = 0, skip: Long = 0, queryHook: (JsObject) => JsObject = defaultQueryHook)(implicit ctx: ExecutionContext): Future[List[T]]
+
+    def findOne(sel: Query, queryHook: (JsObject) => JsObject = defaultQueryHook)(implicit ctx: ExecutionContext): Future[Option[T]] = find(sel, 1, 0, queryHook) map (_.headOption)
 
     /** TODO: to impl once required **/
     /*
