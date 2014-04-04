@@ -9,14 +9,12 @@ import play.api.data.validation.Invalid
 import net.amoeba.utils.ut
 import net.amoeba.core.services.utils.MailingService
 import net.amoeba.core.actors.ActorCommon
-import net.amoeba.core.actors.ActorCommon.Req
-import net.amoeba.core.actors.BaseReqRespActor
-import net.amoeba.core.actors.ActorCommon.Resp
-import net.amoeba.core.actors.ActorCommon.Failed
+import net.amoeba.core.actors.ActorCommon._
 import scala.util.Success
 import scala.util.Failure
 import scala.concurrent.ExecutionContext.Implicits._
 import akka.actor.Actor
+import akka.actor.ActorLogging
 
 /**
  * this actor aims to accept mailing messages
@@ -33,15 +31,18 @@ object MailingActor {
 
     case class MailOk(reqId: String) extends Resp
 
+    case class MailEx(req: Req, errCode: String, errMsg: String, ex: Option[Throwable]) extends Exception with Failed
+
 }
 
-class MailingActor @Inject() (mailService: MailingService) extends Actor {
+class MailingActor @Inject() (mailService: MailingService) extends Actor with ActorLogging {
 
     import MailingActor._
     import MailingActor.errorCodes._
 
     def receive = {
         case req @ Mail(to, subject, content, isHtml, reqId) =>
+            log.debug(s"received mailing request: $to $subject")
             val requestor = sender
             var errMsg: List[String] = List.empty
 
@@ -51,13 +52,13 @@ class MailingActor @Inject() (mailService: MailingService) extends Actor {
             if (ut.isEmail(subject)) errMsg ::= "error.invalid.subject";
             if (ut.isEmail(content)) errMsg ::= "error.invalid.content";
 
-            if (errMsg.size > 0) requestor ! Failed(req, MAIL_FAILED, errMsg.foldLeft("")((a, i) => a + i), None, reqId)
+            if (errMsg.size > 0) requestor ! MailEx(req, MAIL_FAILED, errMsg.foldLeft("")((a, i) => a + i), None)
             else {
                 mailService.sendMail(to, subject, content, isHtml = isHtml).onComplete {
                     case Success(x) =>
                         requestor ! MailOk(reqId);
                     case Failure(t) =>
-                        requestor ! Failed(req, MAIL_FAILED, t.getMessage, Some(t), reqId);
+                        requestor ! MailEx(req, MAIL_FAILED, t.getMessage, Some(t));
                 }
             }
 

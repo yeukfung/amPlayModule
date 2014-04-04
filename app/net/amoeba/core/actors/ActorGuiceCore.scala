@@ -1,4 +1,5 @@
-package net.amoeba.automatic.actors
+package net.amoeba.core.actors
+
 import com.google.inject.Provider
 import com.google.inject.ImplementedBy
 import com.google.inject.Singleton

@@ -69,7 +69,13 @@ object ActorCommon {
     trait Req { def reqId: String }
     trait Resp { def reqId: String }
 
-    case class Failed(req: Req, errCode: String, errMsg: String, ex: Option[Throwable] = None, reqId: String) extends Resp
+    trait Failed extends Resp {
+        def req: Req
+        def errCode: String
+        def errMsg: String
+        def ex: Option[Throwable]
+        def reqId = req.reqId
+    }
 
     trait withCRUDReqResp[T, RAWTYPE] {
         /** req **/
