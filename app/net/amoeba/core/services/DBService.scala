@@ -5,8 +5,8 @@ import play.api.libs.json.JsObject
 import java.util.Date
 
 trait WithCreatedDateTime {
-    def created: Option[Date]
-    def modified: Option[Date]
+    def created: Option[Long]
+    def modified: Option[Long]
 }
 
 trait DBModel[T] {

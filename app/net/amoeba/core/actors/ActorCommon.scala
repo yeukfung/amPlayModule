@@ -60,11 +60,13 @@ object ActorCommon {
             prefix + new String(toBaseInternal(initalList, -1, originalNum, postfixRandomDigit)).trim()
         }
 
-        def to62(originalNum: Long, prefix: String = "", prefixRandomDigit: Int = 5) = toBase(alphaNumeric)(originalNum, prefix, prefixRandomDigit)
+        def to62(originalNum: Long, prefix: String = "", postfixRandomDigit: Int = 5) = toBase(alphaNumeric)(originalNum, prefix, postfixRandomDigit)
 
     }
 
     def genReqId = ReqIdGenerator.to62(System.currentTimeMillis(), "")
+
+    def genRandomId = (Random.shuffle(genReqId.toList)).mkString
 
     trait Req { def reqId: String }
     trait Resp { def reqId: String }
