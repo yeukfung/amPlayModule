@@ -16,7 +16,7 @@ trait DBModel[T] {
 
 trait ReactiveMongoDBService[T <: DBModel[T]] extends CoreReactiveDBService[T, String, JsObject, JsObject]
 
-trait CoreReactiveDBService[T <: DBModel[T], Id, Query, Update] {
+trait CoreReactiveDBService[T, Id, Query, Update] {
 
     implicit def defaultQueryHook(q: JsObject): JsObject = q
 
